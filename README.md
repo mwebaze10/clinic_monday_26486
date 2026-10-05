@@ -13,6 +13,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/appointments/by-status?status=SCHEDULED`
 - Appointments in an inclusive date range, sorted by appointment date:
   `GET /api/appointments/between?start=2026-10-01&end=2026-10-31`
+- Create an appointment for a doctor and patient on a date (the doctor's date must be free):
+  `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
 
 ## Build
 

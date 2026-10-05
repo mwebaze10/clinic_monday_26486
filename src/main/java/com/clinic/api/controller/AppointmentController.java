@@ -23,10 +23,11 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    @PostMapping
+    @PostMapping({ "", "/save" })
     public Appointment createAppointment(@RequestParam("doctorId") Long doctorId,
-            @RequestParam("patientId") Long patientId) {
-        return appointmentService.createAppointment(doctorId, patientId);
+            @RequestParam("patientId") Long patientId,
+            @RequestParam("appointmentDate") LocalDate appointmentDate) {
+        return appointmentService.createAppointment(doctorId, patientId, appointmentDate);
     }
 
     @GetMapping("/by-status")

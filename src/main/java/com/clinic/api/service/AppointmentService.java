@@ -29,7 +29,7 @@ public class AppointmentService {
         this.patientRepository = patientRepository;
     }
 
-    public Appointment createAppointment(Long doctorId, Long patientId) {
+    public Appointment createAppointment(Long doctorId, Long patientId, LocalDate appointmentDate) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Doctor not found with id " + doctorId));
@@ -37,9 +37,17 @@ public class AppointmentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Patient not found with id " + patientId));
 
+        if (appointmentRepository.existsByDoctor_IdAndAppointmentDateAndStatusNot(
+                doctorId, appointmentDate, AppointmentStatus.CANCELLED)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Doctor is already booked on that date");
+        }
+
         Appointment appointment = new Appointment();
         appointment.setDoctor(doctor);
         appointment.setPatient(patient);
+        appointment.setAppointmentDate(appointmentDate);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
         return appointmentRepository.save(appointment);
     }
 
