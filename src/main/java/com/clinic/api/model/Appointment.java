@@ -1,6 +1,10 @@
 package com.clinic.api.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,4 +32,9 @@ public class Appointment {
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    private LocalDate appointmentDate;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 }

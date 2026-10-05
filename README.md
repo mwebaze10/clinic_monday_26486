@@ -9,6 +9,8 @@ Spring Boot REST API starter for clinic records.
 - Appointment creation using doctor and patient IDs
 - Patient last-name search, ignoring case and sorted by first name:
   `GET /api/patients/by-last-name?lastName=uwase`
+- Appointments by status, sorted by appointment date:
+  `GET /api/appointments/by-status?status=SCHEDULED`
 
 ## Build
 

@@ -1,10 +1,13 @@
 package com.clinic.api.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.clinic.api.model.Appointment;
+import com.clinic.api.model.AppointmentStatus;
 import com.clinic.api.model.Doctor;
 import com.clinic.api.model.Patient;
 import com.clinic.api.repository.AppointmentRepository;
@@ -37,5 +40,9 @@ public class AppointmentService {
         appointment.setDoctor(doctor);
         appointment.setPatient(patient);
         return appointmentRepository.save(appointment);
+    }
+
+    public List<Appointment> findByStatus(AppointmentStatus status) {
+        return appointmentRepository.findByStatusOrderByAppointmentDateAsc(status);
     }
 }
