@@ -7,9 +7,8 @@ Spring Boot REST API starter for clinic records.
 - Java 17, Spring Web MVC, Spring Data JPA, PostgreSQL JDBC, and Lombok
 - CRUD endpoints for doctors, offices, and patients
 - Appointment creation using doctor and patient IDs
-
-The application uses `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`,
-and `SPRING_DATASOURCE_PASSWORD` for database connection settings.
+- Patient last-name search, ignoring case and sorted by first name:
+  `GET /api/patients/by-last-name?lastName=uwase`
 
 ## Build
 
@@ -17,8 +16,9 @@ and `SPRING_DATASOURCE_PASSWORD` for database connection settings.
 .\mvnw.cmd -DskipTests package
 ```
 
-The application and context test require a PostgreSQL datasource. Set the
-database connection environment variables before running them.
+The application and context test require a PostgreSQL datasource. Set
+`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
+`SPRING_DATASOURCE_PASSWORD` before running them.
 
 ## Run
 
