@@ -1,5 +1,6 @@
 package com.clinic.api.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -44,5 +45,9 @@ public class AppointmentService {
 
     public List<Appointment> findByStatus(AppointmentStatus status) {
         return appointmentRepository.findByStatusOrderByAppointmentDateAsc(status);
+    }
+
+    public List<Appointment> findBetween(LocalDate start, LocalDate end) {
+        return appointmentRepository.findByAppointmentDateBetweenOrderByAppointmentDateAsc(start, end);
     }
 }

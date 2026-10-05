@@ -1,5 +1,6 @@
 package com.clinic.api.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,7 @@ import com.clinic.api.model.AppointmentStatus;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByStatusOrderByAppointmentDateAsc(AppointmentStatus status);
+
+    List<Appointment> findByAppointmentDateBetweenOrderByAppointmentDateAsc(
+            LocalDate start, LocalDate end);
 }
