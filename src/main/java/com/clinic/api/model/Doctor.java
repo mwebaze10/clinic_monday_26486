@@ -16,6 +16,7 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String lastName;
 
     @ManyToOne
     @JoinColumn(name = "office_id")

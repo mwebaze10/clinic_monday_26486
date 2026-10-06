@@ -19,4 +19,12 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             ORDER BY d.name
             """)
     List<Doctor> findBySpecializationName(@Param("name") String name);
+
+    @Query("""
+            SELECT d
+            FROM Doctor d
+            WHERE d.office IS NULL
+            ORDER BY d.lastName ASC
+            """)
+    List<Doctor> findDoctorsWithoutOffice();
 }

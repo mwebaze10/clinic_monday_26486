@@ -44,6 +44,7 @@ public class DoctorService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 						"Doctor not found with id " + id));
 		doctor.setName(details.getName());
+		doctor.setLastName(details.getLastName());
 		doctor.setOffice(details.getOffice());
 		doctor.setSpecializations(resolveSpecializations(details));
 		return doctorRepository.save(doctor);
@@ -51,6 +52,10 @@ public class DoctorService {
 
 	public List<Doctor> findBySpecialization(String name) {
 		return doctorRepository.findBySpecializationName(name);
+	}
+
+	public List<Doctor> findWithoutOffice() {
+		return doctorRepository.findDoctorsWithoutOffice();
 	}
 
 	private Set<Specialization> resolveSpecializations(Doctor doctor) {

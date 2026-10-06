@@ -38,6 +38,11 @@ public class DoctorController {
         return doctorService.findBySpecialization(name);
     }
 
+    @GetMapping("/without-office")
+    public List<Doctor> getDoctorsWithoutOffice() {
+        return doctorService.findWithoutOffice();
+    }
+
     @GetMapping("/{id}")
     public Doctor getDoctorById(@PathVariable Long id) {
         return doctorRepository.findById(id).orElse(null);
