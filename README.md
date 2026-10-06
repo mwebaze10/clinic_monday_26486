@@ -19,6 +19,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/doctors/without-office`
 - Specializations that no doctor offers:
   `GET /api/specializations/unused`
+- Patients with at least one appointment with a doctor:
+  `GET /api/patients/of-doctor/1`
 - Create an appointment for a doctor and patient on a date (the doctor's date must be free):
   `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
 

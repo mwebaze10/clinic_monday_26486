@@ -38,6 +38,11 @@ public class PatientController {
         return patientService.findByLastName(lastName);
     }
 
+    @GetMapping("/of-doctor/{doctorId}")
+    public List<Patient> getPatientsByDoctor(@PathVariable Long doctorId) {
+        return patientService.findByDoctorId(doctorId);
+    }
+
     @GetMapping("/{id}")
     public Patient getPatientById(@PathVariable Long id) {
         return patientRepository.findById(id).orElse(null);
