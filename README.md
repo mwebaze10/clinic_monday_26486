@@ -13,6 +13,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/appointments/by-status?status=SCHEDULED`
 - Appointments in an inclusive date range, sorted by appointment date:
   `GET /api/appointments/between?start=2026-10-01&end=2026-10-31`
+- Appointments in pages with total-page and total-element metadata:
+  `GET /api/appointments/page?page=0&size=5&sort=appointmentDate,desc`
 - Appointment counts grouped by status:
   `GET /api/appointments/stats/by-status`
 - The office with the most appointments (office name, number, and count):

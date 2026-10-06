@@ -3,6 +3,10 @@ package com.clinic.api.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +51,20 @@ public class AppointmentController {
     @GetMapping("/stats/by-status")
     public List<Object[]> getAppointmentCountsByStatus() {
         return appointmentService.countByStatus();
+    }
+
+    @GetMapping("/page")
+    public Page<Appointment> getAppointmentsPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "appointmentDate,desc") String sort) {
+        String[] sortOptions = sort.split(",", 2);
+        String property = sortOptions[0];
+        Sort.Direction direction = sortOptions.length == 2
+                ? Sort.Direction.fromString(sortOptions[1])
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
+        return appointmentService.findPage(pageable);
     }
 
     @PatchMapping("/cancel-day")
