@@ -31,4 +31,8 @@ public class PatientService {
         }
         return patientRepository.findPatientsByDoctorId(doctorId);
     }
+
+    public List<Patient> findFrequentPatients(long minAppointments) {
+        return patientRepository.findFrequentPatients(minAppointments);
+    }
 }
