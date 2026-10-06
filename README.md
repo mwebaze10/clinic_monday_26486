@@ -15,6 +15,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/appointments/between?start=2026-10-01&end=2026-10-31`
 - Appointment counts grouped by status:
   `GET /api/appointments/stats/by-status`
+- The office with the most appointments (office name, number, and count):
+  `GET /api/offices/busiest`
 - Doctors by case-insensitive specialization name:
   `GET /api/doctors/by-specialization?name=cardiology`
 - Doctors without an office, sorted by last name:

@@ -2,6 +2,7 @@ package com.clinic.api.controller;
 
 import com.clinic.api.model.Office;
 import com.clinic.api.repository.OfficeRepository;
+import com.clinic.api.service.OfficeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +15,17 @@ public class OfficeController {
     @Autowired
     private OfficeRepository officeRepository;
 
+    @Autowired
+    private OfficeService officeService;
+
     @GetMapping
     public List<Office> getAllOffices() {
         return officeRepository.findAll();
+    }
+
+    @GetMapping("/busiest")
+    public Object getBusiestOffice() {
+        return officeService.findBusiestOffice();
     }
 
     @GetMapping("/{id}")
@@ -33,6 +42,7 @@ public class OfficeController {
     public Office updateOffice(@PathVariable Long id, @RequestBody Office officeDetails) {
         return officeRepository.findById(id).map(office -> {
             office.setName(officeDetails.getName());
+            office.setOfficeNumber(officeDetails.getOfficeNumber());
             office.setLocation(officeDetails.getLocation());
             return officeRepository.save(office);
         }).orElse(null);

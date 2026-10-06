@@ -21,5 +21,6 @@ public class Office {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private Integer officeNumber;
     private String location;
 }

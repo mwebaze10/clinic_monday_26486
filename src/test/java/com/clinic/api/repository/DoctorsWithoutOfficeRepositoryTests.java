@@ -26,7 +26,7 @@ class DoctorsWithoutOfficeRepositoryTests {
     void findsDoctorsWithoutOfficeSortedByLastName() {
         Doctor zuluDoctor = saveDoctor("Zulu", null);
         Doctor alphaDoctor = saveDoctor("Alpha", null);
-        saveDoctor("Assigned", officeRepository.save(new Office(null, "B2 Office", "Clinic")));
+        saveDoctor("Assigned", officeRepository.save(new Office(null, "B2 Office", 202, "Clinic")));
 
         List<Doctor> doctors = doctorRepository.findDoctorsWithoutOffice();
 
