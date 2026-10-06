@@ -31,7 +31,9 @@ class AppointmentDateRangeRepositoryTests {
 
     @Test
     void findsAppointmentsOnBothRangeBoundariesOrderedByDate() {
-        Doctor doctor = doctorRepository.save(new Doctor(null, "A3 Doctor", "General", null));
+        Doctor doctor = new Doctor();
+        doctor.setName("A3 Doctor");
+        doctor = doctorRepository.save(doctor);
         Patient patient = patientRepository.save(new Patient(
                 null, "A3 Patient", null, UUID.randomUUID() + "@example.test", null));
         appointmentRepository.saveAll(List.of(

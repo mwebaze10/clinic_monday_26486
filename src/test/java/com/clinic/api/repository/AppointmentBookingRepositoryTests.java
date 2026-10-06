@@ -33,7 +33,9 @@ class AppointmentBookingRepositoryTests {
 
     @Test
     void checksForNonCancelledAppointmentsForDoctorOnDate() {
-        Doctor doctor = doctorRepository.save(new Doctor(null, "A4 Doctor", "General", null));
+        Doctor doctor = new Doctor();
+        doctor.setName("A4 Doctor");
+        doctor = doctorRepository.save(doctor);
         Patient patient = patientRepository.save(new Patient(
                 null, "A4 Patient", null, UUID.randomUUID() + "@example.test", null));
 

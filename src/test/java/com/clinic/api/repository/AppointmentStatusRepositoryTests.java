@@ -31,7 +31,9 @@ class AppointmentStatusRepositoryTests {
 
     @Test
     void findsOnlyRequestedStatusOrderedByAppointmentDate() {
-        Doctor doctor = doctorRepository.save(new Doctor(null, "A2 Doctor", "General", null));
+        Doctor doctor = new Doctor();
+        doctor.setName("A2 Doctor");
+        doctor = doctorRepository.save(doctor);
         Patient patient = patientRepository.save(new Patient(
                 null, "A2 Patient", null, UUID.randomUUID() + "@example.test", null));
         appointmentRepository.saveAll(List.of(

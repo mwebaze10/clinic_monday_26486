@@ -33,6 +33,11 @@ public class DoctorController {
         return doctorRepository.findAll();
     }
 
+    @GetMapping("/by-specialization")
+    public List<Doctor> getDoctorsBySpecialization(@RequestParam("name") String name) {
+        return doctorService.findBySpecialization(name);
+    }
+
     @GetMapping("/{id}")
     public Doctor getDoctorById(@PathVariable Long id) {
         return doctorRepository.findById(id).orElse(null);
@@ -45,12 +50,7 @@ public class DoctorController {
 
     @PutMapping("/{id}")
     public Doctor updateDoctor(@PathVariable Long id, @RequestBody Doctor doctorDetails) {
-        return doctorRepository.findById(id).map(doctor -> {
-            doctor.setName(doctorDetails.getName());
-            doctor.setSpecialization(doctorDetails.getSpecialization());
-            doctor.setOffice(doctorDetails.getOffice());
-            return doctorRepository.save(doctor);
-        }).orElse(null);
+        return doctorService.updateDoctor(id, doctorDetails);
     }
 
     @DeleteMapping("/{id}")
