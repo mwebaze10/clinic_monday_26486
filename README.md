@@ -17,6 +17,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/appointments/stats/by-status`
 - The office with the most appointments (office name, number, and count):
   `GET /api/offices/busiest`
+- Cancel a doctor's appointments on a date, except completed appointments:
+  `PATCH /api/appointments/cancel-day?doctorId=1&date=2026-10-20`
 - Doctors by case-insensitive specialization name:
   `GET /api/doctors/by-specialization?name=cardiology`
 - Doctors without an office, sorted by last name:

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.clinic.api.model.Appointment;
@@ -61,5 +62,12 @@ public class AppointmentService {
 
     public List<Object[]> countByStatus() {
         return appointmentRepository.countAppointmentsByStatus();
+    }
+
+    @Transactional
+    public String cancelDay(Long doctorId, LocalDate date) {
+        int cancelledAppointments = appointmentRepository.cancelDay(
+                doctorId, date, AppointmentStatus.CANCELLED, AppointmentStatus.COMPLETED);
+        return cancelledAppointments + " appointments cancelled";
     }
 }

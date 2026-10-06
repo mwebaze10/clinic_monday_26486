@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,5 +47,12 @@ public class AppointmentController {
     @GetMapping("/stats/by-status")
     public List<Object[]> getAppointmentCountsByStatus() {
         return appointmentService.countByStatus();
+    }
+
+    @PatchMapping("/cancel-day")
+    public String cancelAppointmentsForDoctorOnDate(
+            @RequestParam("doctorId") Long doctorId,
+            @RequestParam("date") LocalDate date) {
+        return appointmentService.cancelDay(doctorId, date);
     }
 }
