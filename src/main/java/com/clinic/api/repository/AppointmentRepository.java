@@ -41,4 +41,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("date") LocalDate date,
             @Param("cancelledStatus") AppointmentStatus cancelledStatus,
             @Param("completedStatus") AppointmentStatus completedStatus);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            DELETE FROM Appointment appointment
+            WHERE appointment.status = :cancelledStatus
+              AND appointment.appointmentDate < :date
+            """)
+    int deleteCancelledBefore(@Param("date") LocalDate date,
+            @Param("cancelledStatus") AppointmentStatus cancelledStatus);
 }

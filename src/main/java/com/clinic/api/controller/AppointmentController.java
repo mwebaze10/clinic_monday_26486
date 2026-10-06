@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,5 +73,10 @@ public class AppointmentController {
             @RequestParam("doctorId") Long doctorId,
             @RequestParam("date") LocalDate date) {
         return appointmentService.cancelDay(doctorId, date);
+    }
+
+    @DeleteMapping("/cancelled-before")
+    public String deleteCancelledBefore(@RequestParam("date") LocalDate date) {
+        return appointmentService.deleteCancelledBefore(date);
     }
 }

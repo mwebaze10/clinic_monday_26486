@@ -76,4 +76,11 @@ public class AppointmentService {
                 doctorId, date, AppointmentStatus.CANCELLED, AppointmentStatus.COMPLETED);
         return cancelledAppointments + " appointments cancelled";
     }
+
+    @Transactional
+    public String deleteCancelledBefore(LocalDate date) {
+        int deletedAppointments = appointmentRepository.deleteCancelledBefore(
+                date, AppointmentStatus.CANCELLED);
+        return deletedAppointments + " appointments deleted";
+    }
 }
