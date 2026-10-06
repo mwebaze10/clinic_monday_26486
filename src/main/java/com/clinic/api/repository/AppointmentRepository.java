@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.clinic.api.model.Appointment;
@@ -18,4 +19,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     boolean existsByDoctor_IdAndAppointmentDateAndStatusNot(
             Long doctorId, LocalDate appointmentDate, AppointmentStatus status);
+
+    @Query("""
+            SELECT appointment.status, COUNT(appointment)
+            FROM Appointment appointment
+            GROUP BY appointment.status
+            """)
+    List<Object[]> countAppointmentsByStatus();
 }

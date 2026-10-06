@@ -42,4 +42,9 @@ public class AppointmentController {
             @RequestParam("end") String end) {
         return appointmentService.findBetween(LocalDate.parse(start), LocalDate.parse(end));
     }
+
+    @GetMapping("/stats/by-status")
+    public List<Object[]> getAppointmentCountsByStatus() {
+        return appointmentService.countByStatus();
+    }
 }
