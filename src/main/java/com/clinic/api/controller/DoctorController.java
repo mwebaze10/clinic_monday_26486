@@ -54,6 +54,12 @@ public class DoctorController {
         return doctorService.searchByName(name);
     }
 
+    @GetMapping("/workload")
+    public List<Object[]> getDoctorWorkload(@RequestParam("start") LocalDate start,
+            @RequestParam("end") LocalDate end) {
+        return doctorService.findWorkload(start, end);
+    }
+
     @GetMapping("/{doctorId}/agenda")
     public List<Appointment> getDoctorAgenda(@PathVariable Long doctorId,
             @RequestParam("date") LocalDate date) {

@@ -27,6 +27,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/doctors/by-specialization?name=cardiology`
 - Doctors whose first or last name contains a case-insensitive search term, sorted by last name:
   `GET /api/doctors/search?name=gis`
+- Doctor workload by completed appointments in an inclusive date range, busiest first:
+  `GET /api/doctors/workload?start=2026-10-01&end=2026-10-31`
 - Doctors without an office, sorted by last name:
   `GET /api/doctors/without-office`
 - Specializations that no doctor offers:
@@ -45,6 +47,7 @@ Spring Boot REST API starter for clinic records.
 - Save a prescription for a completed appointment with `POST /api/prescriptions/save?appointmentId=1` and a JSON body containing `medicineName`, `dosage`, and `durationDays`. Prescriptions are linked to their appointment, receive a generated UUID and today's issued date, and return HTTP 201 with `Prescription saved successfully`.
 - List an appointment's prescriptions with `GET /api/prescriptions/appointment/1`. A missing appointment returns HTTP 404; an appointment with no prescriptions returns an empty list.
 - Get a patient's prescription history with `GET /api/prescriptions/patient/{ssNumber}`. Results include prescriptions across appointments, ordered by issue date newest first; no matches return an empty list.
+- Get prescription totals by medicine with `GET /api/prescriptions/stats/top-medicines`; results are ordered from most prescribed to least prescribed.
 - Update a prescription with `PUT /api/prescriptions/update/{id}` and a JSON body containing `medicineName`, `dosage`, and `durationDays`, or delete it with `DELETE /api/prescriptions/delete/{id}`. Both return HTTP 404 when the prescription is missing. Appointments with prescriptions cannot be deleted.
 - Get a doctor's agenda for a day with `GET /api/doctors/{doctorId}/agenda?date=2026-10-20`; cancelled appointments are excluded and an unknown doctor returns HTTP 404.
 - Get a patient's upcoming appointments with `GET /api/patients/{ssNumber}/upcoming`; appointments from today onward in `SCHEDULED` or `CONFIRMED` status are returned soonest first, or HTTP 404 for an unknown patient.

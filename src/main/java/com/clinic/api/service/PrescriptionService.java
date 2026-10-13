@@ -59,6 +59,10 @@ public class PrescriptionService {
         return prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber);
     }
 
+    public List<Object[]> findTopMedicines() {
+        return prescriptionRepository.findTopMedicines();
+    }
+
     public String update(UUID id, PrescriptionRequest request) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,

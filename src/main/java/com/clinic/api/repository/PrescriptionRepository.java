@@ -23,4 +23,12 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, UUID
             """)
     List<Prescription> findByPatientSsNumberOrderByIssuedDateDesc(
             @Param("ssNumber") String ssNumber);
+
+    @Query("""
+            SELECT prescription.medicineName, COUNT(prescription)
+            FROM Prescription prescription
+            GROUP BY prescription.medicineName
+            ORDER BY COUNT(prescription) DESC
+            """)
+    List<Object[]> findTopMedicines();
 }

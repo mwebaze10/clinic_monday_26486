@@ -3,12 +3,14 @@ package com.clinic.api.service;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDate;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.clinic.api.model.Doctor;
+import com.clinic.api.model.AppointmentStatus;
 import com.clinic.api.model.Office;
 import com.clinic.api.model.Specialization;
 import com.clinic.api.repository.DoctorRepository;
@@ -60,6 +62,10 @@ public class DoctorService {
 
 	public List<Doctor> searchByName(String name) {
 		return doctorRepository.searchByName(name);
+	}
+
+	public List<Object[]> findWorkload(LocalDate start, LocalDate end) {
+		return doctorRepository.findDoctorWorkload(AppointmentStatus.COMPLETED, start, end);
 	}
 
 	private Set<Specialization> resolveSpecializations(Doctor doctor) {
