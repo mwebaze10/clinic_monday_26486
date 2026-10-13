@@ -151,4 +151,93 @@ class AppointmentServiceTests {
         assertEquals("The appointment with that id does not exist", exception.getReason());
         verify(appointmentRepository, never()).save(any(Appointment.class));
     }
+
+    @Test
+    void reschedulesAppointmentAndResetsStatusToScheduled() {
+        LocalDate newDate = LocalDate.now().plusDays(10);
+        Doctor doctor = new Doctor();
+        doctor.setId(DOCTOR_ID);
+        Appointment appointment = new Appointment(
+                3L, doctor, new Patient(), APPOINTMENT_DATE, AppointmentStatus.CONFIRMED);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+        when(appointmentRepository.existsByDoctor_IdAndAppointmentDateAndStatusNot(
+                DOCTOR_ID, newDate, AppointmentStatus.CANCELLED)).thenReturn(false);
+        when(appointmentRepository.save(any(Appointment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        String result = appointmentService.reschedule(3L, newDate);
+
+        assertEquals("Appointment rescheduled successfully", result);
+        assertEquals(newDate, appointment.getAppointmentDate());
+        assertEquals(AppointmentStatus.SCHEDULED, appointment.getStatus());
+        verify(appointmentRepository).save(appointment);
+    }
+
+    @Test
+    void rejectsReschedulingWhenAppointmentDoesNotExist() {
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.reschedule(3L, LocalDate.now().plusDays(1)));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The appointment with that id does not exist", exception.getReason());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void rejectsReschedulingCompletedAndCancelledAppointments() {
+        Appointment appointment = new Appointment();
+        appointment.setId(3L);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+
+        for (AppointmentStatus status : new AppointmentStatus[] {
+                AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED }) {
+            appointment.setStatus(status);
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                    () -> appointmentService.reschedule(3L, LocalDate.now().plusDays(1)));
+
+            assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+            assertEquals("A " + status + " appointment cannot be rescheduled",
+                    exception.getReason());
+        }
+
+        verify(appointmentRepository, never()).existsByDoctor_IdAndAppointmentDateAndStatusNot(
+                any(), any(), any());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void rejectsReschedulingToPastDate() {
+        Appointment appointment = new Appointment();
+        appointment.setId(3L);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.reschedule(3L, LocalDate.now().minusDays(1)));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Appointment date cannot be in the past", exception.getReason());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void rejectsReschedulingWhenDoctorIsBookedOnNewDate() {
+        LocalDate newDate = LocalDate.now().plusDays(10);
+        Doctor doctor = new Doctor();
+        doctor.setId(DOCTOR_ID);
+        Appointment appointment = new Appointment(
+                3L, doctor, new Patient(), APPOINTMENT_DATE, AppointmentStatus.SCHEDULED);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+        when(appointmentRepository.existsByDoctor_IdAndAppointmentDateAndStatusNot(
+                DOCTOR_ID, newDate, AppointmentStatus.CANCELLED)).thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.reschedule(3L, newDate));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        assertEquals("Doctor is already booked on that date", exception.getReason());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
 }

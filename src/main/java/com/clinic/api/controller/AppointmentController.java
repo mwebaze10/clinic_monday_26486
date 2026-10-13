@@ -53,6 +53,12 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.updateStatus(id, status));
     }
 
+    @PatchMapping("/{id}/reschedule")
+    public ResponseEntity<String> reschedule(@PathVariable Long id,
+            @RequestParam("newDate") LocalDate newDate) {
+        return ResponseEntity.ok(appointmentService.reschedule(id, newDate));
+    }
+
     @GetMapping("/between")
     public List<Appointment> getAppointmentsBetween(
             @RequestParam("start") String start,

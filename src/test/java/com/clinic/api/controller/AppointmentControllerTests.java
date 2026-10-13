@@ -9,8 +9,8 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 
 import com.clinic.api.dto.AppointmentBookingRequest;
 import com.clinic.api.model.Appointment;
@@ -30,6 +30,21 @@ class AppointmentControllerTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Appointment status updated successfully", response.getBody());
         verify(appointmentService).updateStatus(3L, AppointmentStatus.COMPLETED);
+    }
+
+    @Test
+    void reschedulesThroughAppointmentRescheduleEndpoint() {
+        AppointmentService appointmentService = mock(AppointmentService.class);
+        AppointmentController controller = new AppointmentController(appointmentService);
+        LocalDate newDate = LocalDate.of(2026, 10, 30);
+        when(appointmentService.reschedule(3L, newDate))
+                .thenReturn("Appointment rescheduled successfully");
+
+        var response = controller.reschedule(3L, newDate);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Appointment rescheduled successfully", response.getBody());
+        verify(appointmentService).reschedule(3L, newDate);
     }
 
     @Test

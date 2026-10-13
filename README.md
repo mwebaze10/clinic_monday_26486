@@ -37,6 +37,7 @@ Spring Boot REST API starter for clinic records.
   `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
   Past dates are rejected with HTTP 400 and `Appointment date cannot be in the past`. An optional JSON body may include a `status`, but new appointments always start as `SCHEDULED`.
 - Change appointment status with `PATCH /api/appointments/1/status?status=CONFIRMED`. Allowed transitions are `SCHEDULED` to `CONFIRMED` or `CANCELLED`, and `CONFIRMED` to `COMPLETED` or `CANCELLED`; other transitions return HTTP 400.
+- Reschedule an appointment with `PATCH /api/appointments/1/reschedule?newDate=2026-10-30`. Completed and cancelled appointments cannot be rescheduled; past dates return HTTP 400, and a date with another non-cancelled appointment for the doctor returns HTTP 409. Successful rescheduling resets the status to `SCHEDULED`.
 
 ## Build
 
