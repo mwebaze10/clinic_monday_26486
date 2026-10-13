@@ -22,15 +22,19 @@ import com.clinic.api.dto.AppointmentBookingRequest;
 import com.clinic.api.model.Appointment;
 import com.clinic.api.model.AppointmentStatus;
 import com.clinic.api.service.AppointmentService;
+import com.clinic.api.service.PrescriptionService;
 
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+    private final PrescriptionService prescriptionService;
 
-    public AppointmentController(AppointmentService appointmentService) {
+    public AppointmentController(AppointmentService appointmentService,
+            PrescriptionService prescriptionService) {
         this.appointmentService = appointmentService;
+        this.prescriptionService = prescriptionService;
     }
 
     @PostMapping({ "", "/save" })
@@ -57,6 +61,16 @@ public class AppointmentController {
     public ResponseEntity<String> reschedule(@PathVariable Long id,
             @RequestParam("newDate") LocalDate newDate) {
         return ResponseEntity.ok(appointmentService.reschedule(id, newDate));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteAppointment(@PathVariable Long id) {
+        if (prescriptionService.appointmentHasPrescriptions(id)) {
+            return ResponseEntity.status(409)
+                    .body("That appointment has prescriptions, delete them first");
+        }
+        appointmentService.deleteById(id);
+        return ResponseEntity.ok("Appointment deleted successfully");
     }
 
     @GetMapping("/between")

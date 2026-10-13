@@ -2,6 +2,7 @@ package com.clinic.api.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -56,5 +57,30 @@ public class PrescriptionService {
 
     public List<Prescription> findByPatientSsNumber(String ssNumber) {
         return prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber);
+    }
+
+    public String update(UUID id, PrescriptionRequest request) {
+        Prescription prescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "The prescription with that id does not exist"));
+
+        prescription.setMedicineName(request.medicineName());
+        prescription.setDosage(request.dosage());
+        prescription.setDurationDays(request.durationDays());
+        prescriptionRepository.save(prescription);
+        return "Prescription updated successfully";
+    }
+
+    public String delete(UUID id) {
+        if (!prescriptionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The prescription with that id does not exist");
+        }
+        prescriptionRepository.deleteById(id);
+        return "Prescription deleted successfully";
+    }
+
+    public boolean appointmentHasPrescriptions(Long appointmentId) {
+        return prescriptionRepository.existsByAppointment_Id(appointmentId);
     }
 }

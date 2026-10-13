@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import com.clinic.api.dto.PrescriptionRequest;
 import com.clinic.api.model.Prescription;
 import com.clinic.api.service.PrescriptionService;
+import com.clinic.api.model.Prescription;
 
 class PrescriptionControllerTests {
     @Test
@@ -51,5 +54,34 @@ class PrescriptionControllerTests {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("Prescription saved successfully", response.getBody());
         verify(prescriptionService).save(5L, request);
+    }
+
+    @Test
+    void updatesPrescriptionAndReturnsSuccessMessage() {
+        PrescriptionService prescriptionService = mock(PrescriptionService.class);
+        PrescriptionController controller = new PrescriptionController(prescriptionService);
+        UUID id = UUID.randomUUID();
+        PrescriptionRequest request = new PrescriptionRequest("Changed", "2 daily", 4);
+        when(prescriptionService.update(id, request)).thenReturn("Prescription updated successfully");
+
+        var response = controller.update(id, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Prescription updated successfully", response.getBody());
+        verify(prescriptionService).update(id, request);
+    }
+
+    @Test
+    void deletesPrescriptionAndReturnsSuccessMessage() {
+        PrescriptionService prescriptionService = mock(PrescriptionService.class);
+        PrescriptionController controller = new PrescriptionController(prescriptionService);
+        UUID id = UUID.randomUUID();
+        when(prescriptionService.delete(id)).thenReturn("Prescription deleted successfully");
+
+        var response = controller.delete(id);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Prescription deleted successfully", response.getBody());
+        verify(prescriptionService).delete(id);
     }
 }

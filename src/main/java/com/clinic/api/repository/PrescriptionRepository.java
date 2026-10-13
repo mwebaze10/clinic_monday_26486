@@ -13,6 +13,7 @@ import com.clinic.api.model.Prescription;
 @Repository
 public interface PrescriptionRepository extends JpaRepository<Prescription, UUID> {
     List<Prescription> findByAppointment_Id(Long appointmentId);
+    boolean existsByAppointment_Id(Long appointmentId);
 
     @Query("""
             SELECT prescription

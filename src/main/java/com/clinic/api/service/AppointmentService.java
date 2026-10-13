@@ -139,4 +139,12 @@ public class AppointmentService {
                 date, AppointmentStatus.CANCELLED);
         return deletedAppointments + " appointments deleted";
     }
+
+    public void deleteById(Long id) {
+        if (!appointmentRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The appointment with that id does not exist");
+        }
+        appointmentRepository.deleteById(id);
+    }
 }

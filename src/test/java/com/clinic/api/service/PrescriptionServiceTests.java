@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -128,5 +129,63 @@ class PrescriptionServiceTests {
         when(prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber))
                 .thenReturn(List.of());
         assertEquals(List.of(), prescriptionService.findByPatientSsNumber(ssNumber));
+    }
+
+    @Test
+    void updatesOnlyMedicineDosageAndDuration() {
+        UUID id = UUID.randomUUID();
+        Appointment appointment = new Appointment();
+        Prescription prescription = new Prescription(id, "Old medicine", "old dosage", 10,
+                LocalDate.now().minusDays(1), appointment);
+        when(prescriptionRepository.findById(id)).thenReturn(Optional.of(prescription));
+        when(prescriptionRepository.save(any(Prescription.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        PrescriptionRequest request = new PrescriptionRequest("New medicine", "2 times daily", 5);
+
+        String result = prescriptionService.update(id, request);
+
+        assertEquals("Prescription updated successfully", result);
+        assertEquals("New medicine", prescription.getMedicineName());
+        assertEquals("2 times daily", prescription.getDosage());
+        assertEquals(5, prescription.getDurationDays());
+        assertEquals(LocalDate.now().minusDays(1), prescription.getIssuedDate());
+        assertEquals(appointment, prescription.getAppointment());
+        verify(prescriptionRepository).save(prescription);
+    }
+
+    @Test
+    void rejectsUpdatingMissingPrescription() {
+        UUID id = UUID.randomUUID();
+        when(prescriptionRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> prescriptionService.update(id, new PrescriptionRequest("Medicine", "daily", 1)));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The prescription with that id does not exist", exception.getReason());
+        verify(prescriptionRepository, never()).save(any(Prescription.class));
+    }
+
+    @Test
+    void deletesExistingPrescription() {
+        UUID id = UUID.randomUUID();
+        when(prescriptionRepository.existsById(id)).thenReturn(true);
+
+        assertEquals("Prescription deleted successfully", prescriptionService.delete(id));
+
+        verify(prescriptionRepository).deleteById(id);
+    }
+
+    @Test
+    void rejectsDeletingMissingPrescription() {
+        UUID id = UUID.randomUUID();
+        when(prescriptionRepository.existsById(id)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> prescriptionService.delete(id));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The prescription with that id does not exist", exception.getReason());
+        verify(prescriptionRepository, never()).deleteById(id);
     }
 }
