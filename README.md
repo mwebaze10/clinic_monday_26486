@@ -40,6 +40,7 @@ Spring Boot REST API starter for clinic records.
 - Reschedule an appointment with `PATCH /api/appointments/1/reschedule?newDate=2026-10-30`. Completed and cancelled appointments cannot be rescheduled; past dates return HTTP 400, and a date with another non-cancelled appointment for the doctor returns HTTP 409. Successful rescheduling resets the status to `SCHEDULED`.
 - Save a prescription for a completed appointment with `POST /api/prescriptions/save?appointmentId=1` and a JSON body containing `medicineName`, `dosage`, and `durationDays`. Prescriptions are linked to their appointment, receive a generated UUID and today's issued date, and return HTTP 201 with `Prescription saved successfully`.
 - List an appointment's prescriptions with `GET /api/prescriptions/appointment/1`. A missing appointment returns HTTP 404; an appointment with no prescriptions returns an empty list.
+- Get a patient's prescription history with `GET /api/prescriptions/patient/{ssNumber}`. Results include prescriptions across appointments, ordered by issue date newest first; no matches return an empty list.
 
 ## Build
 

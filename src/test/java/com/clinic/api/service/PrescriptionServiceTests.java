@@ -114,4 +114,19 @@ class PrescriptionServiceTests {
         assertEquals("The appointment with that id does not exist", exception.getReason());
         verify(prescriptionRepository, never()).findByAppointment_Id(APPOINTMENT_ID);
     }
+
+    @Test
+    void returnsPatientPrescriptionHistoryInRepositoryOrderOrEmpty() {
+        String ssNumber = "1234567890123456";
+        List<Prescription> prescriptions = List.of(new Prescription(), new Prescription());
+        when(prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber))
+                .thenReturn(prescriptions);
+
+        assertEquals(prescriptions, prescriptionService.findByPatientSsNumber(ssNumber));
+        verify(prescriptionRepository).findByPatientSsNumberOrderByIssuedDateDesc(ssNumber);
+
+        when(prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber))
+                .thenReturn(List.of());
+        assertEquals(List.of(), prescriptionService.findByPatientSsNumber(ssNumber));
+    }
 }

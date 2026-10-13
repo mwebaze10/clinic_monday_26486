@@ -36,4 +36,9 @@ public class PrescriptionController {
     public List<Prescription> findByAppointment(@PathVariable Long appointmentId) {
         return prescriptionService.findByAppointmentId(appointmentId);
     }
+
+    @GetMapping("/patient/{ssNumber}")
+    public List<Prescription> findByPatient(@PathVariable String ssNumber) {
+        return prescriptionService.findByPatientSsNumber(ssNumber);
+    }
 }

@@ -65,6 +65,7 @@ public class PatientController {
             patient.setLastName(patientDetails.getLastName());
             patient.setEmail(patientDetails.getEmail());
             patient.setPhone(patientDetails.getPhone());
+            patient.setSsNumber(patientDetails.getSsNumber());
             return patientRepository.save(patient);
         }).orElse(null);
     }

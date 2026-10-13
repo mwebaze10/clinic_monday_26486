@@ -53,4 +53,8 @@ public class PrescriptionService {
         }
         return prescriptionRepository.findByAppointment_Id(appointmentId);
     }
+
+    public List<Prescription> findByPatientSsNumber(String ssNumber) {
+        return prescriptionRepository.findByPatientSsNumberOrderByIssuedDateDesc(ssNumber);
+    }
 }

@@ -27,6 +27,18 @@ class PrescriptionControllerTests {
     }
 
     @Test
+    void returnsPatientPrescriptionHistory() {
+        PrescriptionService prescriptionService = mock(PrescriptionService.class);
+        PrescriptionController controller = new PrescriptionController(prescriptionService);
+        String ssNumber = "1234567890123456";
+        List<Prescription> prescriptions = List.of(new Prescription());
+        when(prescriptionService.findByPatientSsNumber(ssNumber)).thenReturn(prescriptions);
+
+        assertEquals(prescriptions, controller.findByPatient(ssNumber));
+        verify(prescriptionService).findByPatientSsNumber(ssNumber);
+    }
+
+    @Test
     void savesPrescriptionAndReturnsCreatedResponse() {
         PrescriptionService prescriptionService = mock(PrescriptionService.class);
         PrescriptionController controller = new PrescriptionController(prescriptionService);
