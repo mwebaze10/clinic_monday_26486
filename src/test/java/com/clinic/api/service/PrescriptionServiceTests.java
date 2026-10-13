@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -87,5 +88,30 @@ class PrescriptionServiceTests {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Prescriptions are only for COMPLETED appointments", exception.getReason());
         verify(prescriptionRepository, never()).save(any(Prescription.class));
+    }
+
+    @Test
+    void returnsAppointmentPrescriptionsIncludingAnEmptyList() {
+        when(appointmentRepository.existsById(APPOINTMENT_ID)).thenReturn(true);
+        List<Prescription> prescriptions = List.of(new Prescription());
+        when(prescriptionRepository.findByAppointment_Id(APPOINTMENT_ID)).thenReturn(prescriptions);
+
+        assertEquals(prescriptions, prescriptionService.findByAppointmentId(APPOINTMENT_ID));
+        verify(prescriptionRepository).findByAppointment_Id(APPOINTMENT_ID);
+
+        when(prescriptionRepository.findByAppointment_Id(APPOINTMENT_ID)).thenReturn(List.of());
+        assertEquals(List.of(), prescriptionService.findByAppointmentId(APPOINTMENT_ID));
+    }
+
+    @Test
+    void rejectsPrescriptionLookupForMissingAppointment() {
+        when(appointmentRepository.existsById(APPOINTMENT_ID)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> prescriptionService.findByAppointmentId(APPOINTMENT_ID));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The appointment with that id does not exist", exception.getReason());
+        verify(prescriptionRepository, never()).findByAppointment_Id(APPOINTMENT_ID);
     }
 }
