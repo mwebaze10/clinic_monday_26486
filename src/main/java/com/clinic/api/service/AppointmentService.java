@@ -2,6 +2,7 @@ package com.clinic.api.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -108,6 +109,26 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointmentRepository.save(appointment);
         return "Appointment rescheduled successfully";
+    }
+
+    public List<Appointment> getDoctorAgenda(Long doctorId, LocalDate date) {
+        if (!doctorRepository.existsById(doctorId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The doctor with that id does not exist");
+        }
+        return appointmentRepository.findByDoctor_IdAndAppointmentDateAndStatusNot(
+                doctorId, date, AppointmentStatus.CANCELLED);
+    }
+
+    public List<Appointment> getUpcomingForPatient(String ssNumber) {
+        if (!patientRepository.existsBySsNumber(ssNumber)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "That patient with that ssnumber does not exist");
+        }
+        return appointmentRepository
+                .findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                        ssNumber, LocalDate.now(),
+                        List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED));
     }
 
     public List<Appointment> findByStatus(AppointmentStatus status) {

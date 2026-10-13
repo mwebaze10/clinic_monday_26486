@@ -1,5 +1,6 @@
 package com.clinic.api.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clinic.api.model.Appointment;
 import com.clinic.api.model.Doctor;
 import com.clinic.api.repository.DoctorRepository;
+import com.clinic.api.service.AppointmentService;
 import com.clinic.api.service.DoctorService;
 
 @RestController
@@ -22,10 +25,13 @@ public class DoctorController {
 
     private final DoctorRepository doctorRepository;
     private final DoctorService doctorService;
+    private final AppointmentService appointmentService;
 
-    public DoctorController(DoctorRepository doctorRepository, DoctorService doctorService) {
+    public DoctorController(DoctorRepository doctorRepository, DoctorService doctorService,
+            AppointmentService appointmentService) {
         this.doctorRepository = doctorRepository;
         this.doctorService = doctorService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping
@@ -41,6 +47,12 @@ public class DoctorController {
     @GetMapping("/without-office")
     public List<Doctor> getDoctorsWithoutOffice() {
         return doctorService.findWithoutOffice();
+    }
+
+    @GetMapping("/{doctorId}/agenda")
+    public List<Appointment> getDoctorAgenda(@PathVariable Long doctorId,
+            @RequestParam("date") LocalDate date) {
+        return appointmentService.getDoctorAgenda(doctorId, date);
     }
 
     @GetMapping("/{id}")

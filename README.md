@@ -42,6 +42,8 @@ Spring Boot REST API starter for clinic records.
 - List an appointment's prescriptions with `GET /api/prescriptions/appointment/1`. A missing appointment returns HTTP 404; an appointment with no prescriptions returns an empty list.
 - Get a patient's prescription history with `GET /api/prescriptions/patient/{ssNumber}`. Results include prescriptions across appointments, ordered by issue date newest first; no matches return an empty list.
 - Update a prescription with `PUT /api/prescriptions/update/{id}` and a JSON body containing `medicineName`, `dosage`, and `durationDays`, or delete it with `DELETE /api/prescriptions/delete/{id}`. Both return HTTP 404 when the prescription is missing. Appointments with prescriptions cannot be deleted.
+- Get a doctor's agenda for a day with `GET /api/doctors/{doctorId}/agenda?date=2026-10-20`; cancelled appointments are excluded and an unknown doctor returns HTTP 404.
+- Get a patient's upcoming appointments with `GET /api/patients/{ssNumber}/upcoming`; appointments from today onward in `SCHEDULED` or `CONFIRMED` status are returned soonest first, or HTTP 404 for an unknown patient.
 
 ## Build
 

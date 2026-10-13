@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -150,6 +151,65 @@ class AppointmentServiceTests {
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("The appointment with that id does not exist", exception.getReason());
         verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void returnsDoctorAgendaExcludingCancelledAppointments() {
+        LocalDate date = LocalDate.now().plusDays(1);
+        List<Appointment> appointments = List.of(new Appointment());
+        when(doctorRepository.existsById(DOCTOR_ID)).thenReturn(true);
+        when(appointmentRepository.findByDoctor_IdAndAppointmentDateAndStatusNot(
+                DOCTOR_ID, date, AppointmentStatus.CANCELLED)).thenReturn(appointments);
+
+        assertEquals(appointments, appointmentService.getDoctorAgenda(DOCTOR_ID, date));
+        verify(appointmentRepository).findByDoctor_IdAndAppointmentDateAndStatusNot(
+                DOCTOR_ID, date, AppointmentStatus.CANCELLED);
+    }
+
+    @Test
+    void returnsNotFoundForAgendaOfMissingDoctor() {
+        when(doctorRepository.existsById(DOCTOR_ID)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.getDoctorAgenda(DOCTOR_ID, LocalDate.now()));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The doctor with that id does not exist", exception.getReason());
+        verify(appointmentRepository, never())
+                .findByDoctor_IdAndAppointmentDateAndStatusNot(any(), any(), any());
+    }
+
+    @Test
+    void returnsUpcomingPatientAppointmentsWithRequiredStatusesAndDate() {
+        String ssNumber = "1234567890123456";
+        List<Appointment> appointments = List.of(new Appointment());
+        when(patientRepository.existsBySsNumber(ssNumber)).thenReturn(true);
+        when(appointmentRepository
+                .findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                        ssNumber, LocalDate.now(),
+                        List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED)))
+                .thenReturn(appointments);
+
+        assertEquals(appointments, appointmentService.getUpcomingForPatient(ssNumber));
+        verify(appointmentRepository)
+                .findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                        ssNumber, LocalDate.now(),
+                        List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED));
+    }
+
+    @Test
+    void returnsNotFoundForUpcomingAppointmentsOfMissingPatient() {
+        String ssNumber = "missing";
+        when(patientRepository.existsBySsNumber(ssNumber)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.getUpcomingForPatient(ssNumber));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("That patient with that ssnumber does not exist", exception.getReason());
+        verify(appointmentRepository, never())
+                .findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                        any(), any(), any());
     }
 
     @Test
