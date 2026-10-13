@@ -25,6 +25,13 @@ Spring Boot REST API starter for clinic records.
   `DELETE /api/appointments/cancelled-before?date=2026-10-15`
 - Doctors by case-insensitive specialization name:
   `GET /api/doctors/by-specialization?name=cardiology`
+- Add or remove a doctor's specialization:
+  `PUT /api/doctors/{doctorId}/specializations/{specializationId}` and
+  `DELETE /api/doctors/{doctorId}/specializations/{specializationId}`
+- List offices not assigned to any doctor:
+  `GET /api/offices/free`
+- Assign a doctor to an unoccupied office by office number:
+  `PATCH /api/doctors/{doctorId}/office?officeNumber=104`
 - Doctors whose first or last name contains a case-insensitive search term, sorted by last name:
   `GET /api/doctors/search?name=gis`
 - Doctor workload by completed appointments in an inclusive date range, busiest first:

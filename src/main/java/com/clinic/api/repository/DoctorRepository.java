@@ -13,6 +13,8 @@ import com.clinic.api.model.AppointmentStatus;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+    boolean existsByOffice_Id(Long officeId);
+
     @Query("""
             SELECT DISTINCT d
             FROM Doctor d

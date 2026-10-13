@@ -68,6 +68,63 @@ public class DoctorService {
 		return doctorRepository.findDoctorWorkload(AppointmentStatus.COMPLETED, start, end);
 	}
 
+	public String addSpecialization(Long doctorId, Long specializationId) {
+		Doctor doctor = doctorRepository.findById(doctorId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"The doctor with that id does not exist"));
+		Specialization specialization = specializationRepository.findById(specializationId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"That specialization does not exist"));
+
+		if (doctor.getSpecializations().contains(specialization)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"The doctor already has that specialization");
+		}
+
+		doctor.getSpecializations().add(specialization);
+		doctorRepository.save(doctor);
+		return "Specialization added to the doctor";
+	}
+
+	public String removeSpecialization(Long doctorId, Long specializationId) {
+		Doctor doctor = doctorRepository.findById(doctorId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"The doctor with that id does not exist"));
+		Specialization specialization = specializationRepository.findById(specializationId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"That specialization does not exist"));
+
+		if (!doctor.getSpecializations().contains(specialization)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"The doctor does not have that specialization");
+		}
+
+		doctor.getSpecializations().remove(specialization);
+		doctorRepository.save(doctor);
+		return "Specialization removed from the doctor";
+	}
+
+	public String moveToOffice(Long doctorId, Integer officeNumber) {
+		Doctor doctor = doctorRepository.findById(doctorId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"The doctor with that id does not exist"));
+		Office office = officeRepository.findByOfficeNumber(officeNumber)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"The office with that office number does not exist"));
+
+		boolean officeOccupied = doctorRepository.existsByOffice_Id(office.getId());
+		boolean alreadyAssigned = doctor.getOffice() != null
+				&& doctor.getOffice().getId().equals(office.getId());
+		if (officeOccupied && !alreadyAssigned) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"That office is taken by other doctor");
+		}
+
+		doctor.setOffice(office);
+		doctorRepository.save(doctor);
+		return "Office changed successfully";
+	}
+
 	private Set<Specialization> resolveSpecializations(Doctor doctor) {
 		Set<Specialization> specializations = new LinkedHashSet<>();
 		if (doctor.getSpecializations() != null) {

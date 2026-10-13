@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,6 +81,24 @@ public class DoctorController {
     @PutMapping("/{id}")
     public Doctor updateDoctor(@PathVariable Long id, @RequestBody Doctor doctorDetails) {
         return doctorService.updateDoctor(id, doctorDetails);
+    }
+
+    @PutMapping("/{doctorId}/specializations/{specializationId}")
+    public ResponseEntity<String> addSpecialization(@PathVariable Long doctorId,
+            @PathVariable Long specializationId) {
+        return ResponseEntity.ok(doctorService.addSpecialization(doctorId, specializationId));
+    }
+
+    @DeleteMapping("/{doctorId}/specializations/{specializationId}")
+    public ResponseEntity<String> removeSpecialization(@PathVariable Long doctorId,
+            @PathVariable Long specializationId) {
+        return ResponseEntity.ok(doctorService.removeSpecialization(doctorId, specializationId));
+    }
+
+    @PatchMapping("/{doctorId}/office")
+    public ResponseEntity<String> moveToOffice(@PathVariable Long doctorId,
+            @RequestParam("officeNumber") Integer officeNumber) {
+        return ResponseEntity.ok(doctorService.moveToOffice(doctorId, officeNumber));
     }
 
     @DeleteMapping("/{id}")

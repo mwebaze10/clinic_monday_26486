@@ -28,6 +28,11 @@ public class OfficeController {
         return officeService.findBusiestOffice();
     }
 
+    @GetMapping("/free")
+    public List<Office> getFreeOffices() {
+        return officeService.findFreeOffices();
+    }
+
     @GetMapping("/{id}")
     public Office getOfficeById(@PathVariable Long id) {
         return officeRepository.findById(id).orElse(null);
