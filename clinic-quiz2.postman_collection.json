@@ -19,6 +19,18 @@
     {
       "key": "prescriptionId",
       "value": "REPLACE_WITH_UUID"
+    },
+    {
+      "key": "doctorId",
+      "value": "149"
+    },
+    {
+      "key": "specializationId",
+      "value": "52"
+    },
+    {
+      "key": "officeNumber",
+      "value": "105"
     }
   ],
   "item": [
@@ -28,16 +40,16 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/doctors/1/specializations/2",
+          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/specializations/{{specializationId}}",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "doctors",
-            "1",
+            "{{doctorId}}",
             "specializations",
-            "2"
+            "{{specializationId}}"
           ]
         },
         "description": "200 added | 404 doctor/spec | 409 already has"
@@ -49,16 +61,16 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/doctors/1/specializations/2",
+          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/specializations/{{specializationId}}",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "doctors",
-            "1",
+            "{{doctorId}}",
             "specializations",
-            "2"
+            "{{specializationId}}"
           ]
         },
         "description": "200 removed | 404 | 409 does not have"
@@ -80,7 +92,7 @@
             "free"
           ]
         },
-        "description": "Free offices (seed: 104)"
+        "description": "Free offices (demo office number: {{officeNumber}})"
       }
     },
     {
@@ -89,20 +101,20 @@
         "method": "PATCH",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/doctors/1/office?officeNumber=104",
+          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/office?officeNumber={{officeNumber}}",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "doctors",
-            "1",
+            "{{doctorId}}",
             "office"
           ],
           "query": [
             {
               "key": "officeNumber",
-              "value": "104"
+              "value": "{{officeNumber}}"
             }
           ]
         },
