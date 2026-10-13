@@ -33,6 +33,11 @@ public class AppointmentService {
     }
 
     public Appointment createAppointment(Long doctorId, Long patientId, LocalDate appointmentDate) {
+        if (appointmentDate.isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Appointment date cannot be in the past");
+        }
+
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Doctor not found with id " + doctorId));

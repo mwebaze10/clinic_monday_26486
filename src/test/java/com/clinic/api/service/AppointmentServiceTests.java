@@ -27,7 +27,7 @@ import com.clinic.api.repository.PatientRepository;
 class AppointmentServiceTests {
     private static final Long DOCTOR_ID = 1L;
     private static final Long PATIENT_ID = 2L;
-    private static final LocalDate APPOINTMENT_DATE = LocalDate.of(2026, 10, 20);
+    private static final LocalDate APPOINTMENT_DATE = LocalDate.now().plusDays(7);
 
     private AppointmentRepository appointmentRepository;
     private DoctorRepository doctorRepository;
@@ -71,5 +71,17 @@ class AppointmentServiceTests {
         assertEquals(APPOINTMENT_DATE, appointment.getAppointmentDate());
         assertEquals(AppointmentStatus.SCHEDULED, appointment.getStatus());
         verify(appointmentRepository).save(appointment);
+    }
+
+    @Test
+    void rejectsBookingWhenDateIsInThePast() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.createAppointment(DOCTOR_ID, PATIENT_ID, yesterday));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Appointment date cannot be in the past", exception.getReason());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
     }
 }

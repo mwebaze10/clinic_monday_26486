@@ -35,6 +35,7 @@ Spring Boot REST API starter for clinic records.
   `GET /api/patients/frequent?min=3`
 - Create an appointment for a doctor and patient on a date (the doctor's date must be free):
   `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
+  Past dates are rejected with HTTP 400 and `Appointment date cannot be in the past`. An optional JSON body may include a `status`, but new appointments always start as `SCHEDULED`.
 
 ## Build
 
