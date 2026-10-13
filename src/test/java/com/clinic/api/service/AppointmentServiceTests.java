@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,6 +83,72 @@ class AppointmentServiceTests {
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Appointment date cannot be in the past", exception.getReason());
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void allowsOnlyStatusTransitionsFromTheStatusFlow() {
+        Appointment appointment = new Appointment();
+        appointment.setId(3L);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+        when(appointmentRepository.save(any(Appointment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AppointmentStatus[][] allowedTransitions = {
+                { AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED },
+                { AppointmentStatus.SCHEDULED, AppointmentStatus.CANCELLED },
+                { AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED },
+                { AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED }
+        };
+
+        for (AppointmentStatus[] transition : allowedTransitions) {
+            appointment.setStatus(transition[0]);
+            assertEquals("Appointment status updated successfully",
+                    appointmentService.updateStatus(3L, transition[1]));
+            assertEquals(transition[1], appointment.getStatus());
+        }
+
+        verify(appointmentRepository, times(allowedTransitions.length)).save(appointment);
+    }
+
+    @Test
+    void rejectsEveryStatusTransitionNotInTheStatusFlowWithRealStatusNames() {
+        Appointment appointment = new Appointment();
+        appointment.setId(3L);
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(appointment));
+
+        for (AppointmentStatus current : AppointmentStatus.values()) {
+            for (AppointmentStatus next : AppointmentStatus.values()) {
+                boolean allowed = (current == AppointmentStatus.SCHEDULED
+                        && (next == AppointmentStatus.CONFIRMED || next == AppointmentStatus.CANCELLED))
+                        || (current == AppointmentStatus.CONFIRMED
+                                && (next == AppointmentStatus.COMPLETED || next == AppointmentStatus.CANCELLED));
+                if (allowed) {
+                    continue;
+                }
+
+                appointment.setStatus(current);
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                        () -> appointmentService.updateStatus(3L, next));
+
+                assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+                assertEquals("Cannot change status from " + current + " to " + next,
+                        exception.getReason());
+            }
+        }
+
+        verify(appointmentRepository, never()).save(any(Appointment.class));
+    }
+
+    @Test
+    void returnsNotFoundWhenChangingStatusForMissingAppointment() {
+        when(appointmentRepository.findById(3L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> appointmentService.updateStatus(3L, AppointmentStatus.COMPLETED));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("The appointment with that id does not exist", exception.getReason());
         verify(appointmentRepository, never()).save(any(Appointment.class));
     }
 }

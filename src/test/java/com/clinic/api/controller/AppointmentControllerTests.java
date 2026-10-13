@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Sort;
 
 import com.clinic.api.dto.AppointmentBookingRequest;
@@ -17,6 +18,20 @@ import com.clinic.api.model.AppointmentStatus;
 import com.clinic.api.service.AppointmentService;
 
 class AppointmentControllerTests {
+    @Test
+    void updatesStatusThroughAppointmentStatusEndpoint() {
+        AppointmentService appointmentService = mock(AppointmentService.class);
+        AppointmentController controller = new AppointmentController(appointmentService);
+        when(appointmentService.updateStatus(3L, AppointmentStatus.COMPLETED))
+                .thenReturn("Appointment status updated successfully");
+
+        var response = controller.updateStatus(3L, AppointmentStatus.COMPLETED);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Appointment status updated successfully", response.getBody());
+        verify(appointmentService).updateStatus(3L, AppointmentStatus.COMPLETED);
+    }
+
     @Test
     void bookingIgnoresStatusInJsonRequest() {
         AppointmentService appointmentService = mock(AppointmentService.class);

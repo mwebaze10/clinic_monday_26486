@@ -59,6 +59,27 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    public String updateStatus(Long id, AppointmentStatus newStatus) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "The appointment with that id does not exist"));
+
+        AppointmentStatus currentStatus = appointment.getStatus();
+        boolean validTransition = (currentStatus == AppointmentStatus.SCHEDULED
+                && (newStatus == AppointmentStatus.CONFIRMED || newStatus == AppointmentStatus.CANCELLED))
+                || (currentStatus == AppointmentStatus.CONFIRMED
+                        && (newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.CANCELLED));
+
+        if (!validTransition) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot change status from " + currentStatus + " to " + newStatus);
+        }
+
+        appointment.setStatus(newStatus);
+        appointmentRepository.save(appointment);
+        return "Appointment status updated successfully";
+    }
+
     public List<Appointment> findByStatus(AppointmentStatus status) {
         return appointmentRepository.findByStatusOrderByAppointmentDateAsc(status);
     }
