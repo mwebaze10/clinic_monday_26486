@@ -49,6 +49,11 @@ public class DoctorController {
         return doctorService.findWithoutOffice();
     }
 
+    @GetMapping("/search")
+    public List<Doctor> searchDoctors(@RequestParam("name") String name) {
+        return doctorService.searchByName(name);
+    }
+
     @GetMapping("/{doctorId}/agenda")
     public List<Appointment> getDoctorAgenda(@PathVariable Long doctorId,
             @RequestParam("date") LocalDate date) {

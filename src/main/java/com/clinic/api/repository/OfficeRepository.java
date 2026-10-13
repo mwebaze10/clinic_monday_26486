@@ -20,4 +20,13 @@ public interface OfficeRepository extends JpaRepository<Office, Long> {
             ORDER BY COUNT(appointment) DESC, office.name ASC
             """)
     List<Object[]> findOfficesByAppointmentCount(Pageable pageable);
+
+    @Query("""
+            SELECT office FROM Office office
+            WHERE NOT EXISTS (
+                SELECT doctor FROM Doctor doctor
+                WHERE doctor.office = office
+            )
+            """)
+    List<Office> findFreeOffices();
 }

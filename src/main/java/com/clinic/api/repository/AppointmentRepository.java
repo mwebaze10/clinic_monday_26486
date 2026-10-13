@@ -35,6 +35,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """)
     List<Object[]> countAppointmentsByStatus();
 
+    long countByAppointmentDate(LocalDate appointmentDate);
+
+    long countByStatus(AppointmentStatus status);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             UPDATE Appointment appointment

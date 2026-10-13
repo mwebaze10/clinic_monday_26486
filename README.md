@@ -25,6 +25,8 @@ Spring Boot REST API starter for clinic records.
   `DELETE /api/appointments/cancelled-before?date=2026-10-15`
 - Doctors by case-insensitive specialization name:
   `GET /api/doctors/by-specialization?name=cardiology`
+- Doctors whose first or last name contains a case-insensitive search term, sorted by last name:
+  `GET /api/doctors/search?name=gis`
 - Doctors without an office, sorted by last name:
   `GET /api/doctors/without-office`
 - Specializations that no doctor offers:
@@ -33,6 +35,8 @@ Spring Boot REST API starter for clinic records.
   `GET /api/patients/of-doctor/1`
 - Patients with at least a minimum number of appointments, most frequent first:
   `GET /api/patients/frequent?min=3`
+- Clinic dashboard summary with totals for patients, doctors, free offices, today's appointments, scheduled appointments, and prescriptions:
+  `GET /api/dashboard/summary`
 - Create an appointment for a doctor and patient on a date (the doctor's date must be free):
   `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
   Past dates are rejected with HTTP 400 and `Appointment date cannot be in the past`. An optional JSON body may include a `status`, but new appointments always start as `SCHEDULED`.

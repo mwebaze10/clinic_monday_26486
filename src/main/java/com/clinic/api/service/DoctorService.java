@@ -58,6 +58,10 @@ public class DoctorService {
 		return doctorRepository.findDoctorsWithoutOffice();
 	}
 
+	public List<Doctor> searchByName(String name) {
+		return doctorRepository.searchByName(name);
+	}
+
 	private Set<Specialization> resolveSpecializations(Doctor doctor) {
 		Set<Specialization> specializations = new LinkedHashSet<>();
 		if (doctor.getSpecializations() != null) {
