@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "prescription")
@@ -25,14 +27,13 @@ public class Prescription {
     private UUID id;
 
     private String medicineName;
-
     private String dosage;
-
     private int durationDays;
-
     private LocalDate issuedDate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "appointment_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Appointment appointment;
 }

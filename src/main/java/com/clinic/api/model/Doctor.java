@@ -1,9 +1,8 @@
 package com.clinic.api.model;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 
 @Entity
@@ -15,16 +14,20 @@ public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String lastName;
+        private String firstName;
+        private String lastName;
 
-    @ManyToOne
-    @JoinColumn(name = "office_id")
-    private Office office;
+        @ManyToOne
+        @JoinColumn(name = "office_id")
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private Office office;
 
-    @ManyToMany
-    @JoinTable(name = "doctor_specializations",
+        @ManyToMany
+        @JoinTable(name = "doctor_specializations",
             joinColumns = @JoinColumn(name = "doctor_id"),
             inverseJoinColumns = @JoinColumn(name = "specialization_id"))
-    private Set<Specialization> specializations = new LinkedHashSet<>();
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private List<Specialization> specializations = new ArrayList<>();
 }

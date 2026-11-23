@@ -1,517 +1,249 @@
 {
   "info": {
+    "_postman_id": "3158be10-d35f-4f77-a450-456522f4067b",
     "name": "Kigali Clinic Quiz 2",
+    "description": "One request per A-D requirement plus bonus reports. C4 groups its prescription update/delete and protected appointment delete operations. Update variables to match the local database before running requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "ssNumber",
-      "value": "DEMO-SS-001"
-    },
-    {
-      "key": "completedAppointmentId",
-      "value": "273"
-    },
-    {
-      "key": "prescriptionId",
-      "value": "2d4b02bd-8073-4a4f-a122-6f2a015c77d1"
-    },
-    {
-      "key": "doctorId",
-      "value": "149"
-    },
-    {
-      "key": "specializationId",
-      "value": "52"
-    },
-    {
-      "key": "officeNumber",
-      "value": "105"
-    },
-    {
-      "key": "patientId",
-      "value": "167"
-    },
-    {
-      "key": "appointmentId",
-      "value": "272"
-    },
-    {
-      "key": "bookingDate",
-      "value": "2026-10-23"
-    },
-    {
-      "key": "rescheduleDate",
-      "value": "2026-10-25"
-    }
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "lastName", "value": "Uwase", "type": "string" },
+    { "key": "status", "value": "SCHEDULED", "type": "string" },
+    { "key": "appointmentId", "value": "1", "type": "string" },
+    { "key": "missingAppointmentId", "value": "99999999", "type": "string" },
+    { "key": "doctorId", "value": "1", "type": "string" },
+    { "key": "missingDoctorId", "value": "99999999", "type": "string" },
+    { "key": "patientId", "value": "1", "type": "string" },
+    { "key": "patientSsNumber", "value": "1234567890123456", "type": "string" },
+    { "key": "officeNumber", "value": "2", "type": "string" },
+    { "key": "appointmentDate", "value": "2026-10-30", "type": "string" },
+    { "key": "newDate", "value": "2026-10-31", "type": "string" },
+    { "key": "nextStatus", "value": "CONFIRMED", "type": "string" },
+    { "key": "invalidStatus", "value": "SCHEDULED", "type": "string" },
+    { "key": "prescriptionId", "value": "00000000-0000-0000-0000-000000000001", "type": "string" },
+    { "key": "startDate", "value": "2026-10-01", "type": "string" },
+    { "key": "endDate", "value": "2026-10-31", "type": "string" }
   ],
   "item": [
     {
       "name": "A1",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/specializations/{{specializationId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "{{doctorId}}",
-            "specializations",
-            "{{specializationId}}"
-          ]
-        },
-        "description": "200 added | 404 doctor/spec | 409 already has"
-      }
-    },
-    {
-      "name": "A2",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/specializations/{{specializationId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "{{doctorId}}",
-            "specializations",
-            "{{specializationId}}"
-          ]
-        },
-        "description": "200 removed | 404 | 409 does not have"
-      }
-    },
-    {
-      "name": "A3",
+      "description": "Patients by last name, ignoring case and ordered by first name.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/offices/free",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "offices",
-            "free"
-          ]
-        },
-        "description": "Free offices (demo office number: {{officeNumber}})"
-      }
+        "url": "{{baseUrl}}/api/patients/by-last-name?lastName={{lastName}}"
+      },
+      "response": []
+    },
+    {
+      "name": "A2",
+      "description": "Appointments by status, ordered by appointment date.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/by-status?status={{status}}"
+      },
+      "response": []
+    },
+    {
+      "name": "A3",
+      "description": "Appointments between inclusive start and end dates.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/between?start={{startDate}}&end={{endDate}}"
+      },
+      "response": []
     },
     {
       "name": "A4",
+      "description": "Move a doctor to a free office. Use an occupied office to demonstrate HTTP 409.",
       "request": {
         "method": "PATCH",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/office?officeNumber={{officeNumber}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "{{doctorId}}",
-            "office"
-          ],
-          "query": [
-            {
-              "key": "officeNumber",
-              "value": "{{officeNumber}}"
-            }
-          ]
-        },
-        "description": "200 | 404 | 409 taken"
-      }
+        "url": "{{baseUrl}}/api/doctors/{{doctorId}}/office?officeNumber={{officeNumber}}"
+      },
+      "response": []
     },
     {
       "name": "B1",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/appointments/save?doctorId={{doctorId}}&patientId={{patientId}}&appointmentDate={{bookingDate}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "appointments",
-            "save"
-          ],
-          "query": [
-            {
-              "key": "doctorId",
-              "value": "{{doctorId}}"
-            },
-            {
-              "key": "patientId",
-              "value": "{{patientId}}"
-            },
-            {
-              "key": "appointmentDate",
-              "value": "{{bookingDate}}"
-            }
-          ]
-        },
-        "description": "400 if past date; always SCHEDULED"
-      }
-    },
-    {
-      "name": "B2",
-      "request": {
-        "method": "PATCH",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/status?status=CONFIRMED",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "appointments",
-            "{{appointmentId}}",
-            "status"
-          ],
-          "query": [
-            {
-              "key": "status",
-              "value": "CONFIRMED"
-            }
-          ]
-        },
-        "description": "400 Cannot change status from X to Y | 404 | 200"
-      }
-    },
-    {
-      "name": "B3",
-      "request": {
-        "method": "PATCH",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/reschedule?newDate={{rescheduleDate}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "appointments",
-            "{{appointmentId}}",
-            "reschedule"
-          ],
-          "query": [
-            {
-              "key": "newDate",
-              "value": "{{rescheduleDate}}"
-            }
-          ]
-        },
-        "description": "404 | 400 | 409 | 200"
-      }
-    },
-    {
-      "name": "C1",
+      "description": "Create a safe appointment. A future free date succeeds; a past date returns HTTP 400 and an already-booked doctor/date returns HTTP 409. Status in the body is ignored; new appointments start SCHEDULED.",
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" }
         ],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/save?appointmentId={{completedAppointmentId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "save"
-          ],
-          "query": [
-            {
-              "key": "appointmentId",
-              "value": "{{completedAppointmentId}}"
-            }
-          ]
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"doctor\": { \"id\": {{doctorId}} },\n  \"patient\": { \"id\": {{patientId}} },\n  \"appointmentDate\": \"{{appointmentDate}}\",\n  \"status\": \"COMPLETED\"\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
         },
-        "description": "201 | 404 | 400 not COMPLETED",
+        "url": "{{baseUrl}}/api/appointments/save"
+      },
+      "response": []
+    },
+    {
+      "name": "B2",
+      "description": "Change status using the allowed transition table. Try a valid nextStatus for HTTP 200, or an invalid transition for HTTP 400. A missing ID returns HTTP 404.",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/{{appointmentId}}/status?status={{nextStatus}}"
+      },
+      "response": []
+    },
+    {
+      "name": "B3",
+      "description": "Reschedule a non-final appointment to a future date. Final appointments/past dates return HTTP 400; a date booked by another active appointment returns HTTP 409.",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/{{appointmentId}}/reschedule?newDate={{newDate}}"
+      },
+      "response": []
+    },
+    {
+      "name": "C1",
+      "description": "Create a prescription for a completed appointment. Set appointmentId to a completed appointment for HTTP 201; otherwise expect HTTP 400. A missing appointment returns HTTP 404.",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"medicineName\": \"Amoxicillin\",\n  \"dosage\": \"1 tablet, 3 times a day\",\n  \"durationDays\": 7\n}",
           "options": {
-            "raw": {
-              "language": "json"
-            }
+            "raw": { "language": "json" }
           }
-        }
-      }
+        },
+        "url": "{{baseUrl}}/api/prescriptions/save?appointmentId={{appointmentId}}"
+      },
+      "response": []
     },
     {
       "name": "C2",
+      "description": "List prescriptions for an appointment. Returns an empty JSON array when it has no prescriptions; a nonexistent appointment returns HTTP 404.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/appointment/{{completedAppointmentId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "appointment",
-            "{{completedAppointmentId}}"
-          ]
-        },
-        "description": "404 if appointment missing; [] if none"
-      }
+        "url": "{{baseUrl}}/api/prescriptions/appointment/{{appointmentId}}"
+      },
+      "response": []
     },
     {
       "name": "C3",
+      "description": "Prescription history for a patient, newest issued date first.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/patient/{{ssNumber}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "patient",
-            "{{ssNumber}}"
-          ]
-        },
-        "description": "Newest issuedDate first"
-      }
+        "url": "{{baseUrl}}/api/prescriptions/patient/{{patientSsNumber}}"
+      },
+      "response": []
     },
     {
-      "name": "C4-update",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/update/{{prescriptionId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "update",
-            "{{prescriptionId}}"
-          ]
+      "name": "C4",
+      "description": "Prescription and appointment deletion protection operations.",
+      "item": [
+        {
+          "name": "C4 - Update prescription",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicineName\": \"Amoxicillin\",\n  \"dosage\": \"1 tablet, 2 times a day\",\n  \"durationDays\": 5\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": "{{baseUrl}}/api/prescriptions/update/{{prescriptionId}}"
+          },
+          "response": []
         },
-        "description": "200 | 404",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"medicineName\": \"Paracetamol\",\n  \"dosage\": \"2 tablets, 2 times a day\",\n  \"durationDays\": 5\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+        {
+          "name": "C4 - Delete prescription",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/prescriptions/delete/{{prescriptionId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "C4 - Block appointment delete with prescriptions",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/appointments/{{appointmentId}}"
+          },
+          "response": []
         }
-      }
-    },
-    {
-      "name": "C4-delete",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/delete/{{prescriptionId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "delete",
-            "{{prescriptionId}}"
-          ]
-        },
-        "description": "200 | 404 (run C4-delete-appointment first to see the 409 guard)"
-      }
-    },
-    {
-      "name": "C4-delete-appointment",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/appointments/{{completedAppointmentId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "appointments",
-            "{{completedAppointmentId}}"
-          ]
-        },
-        "description": "Run before C4-delete: 409 when prescriptions remain | 404 | 200"
-      }
+      ]
     },
     {
       "name": "D1",
+      "description": "Doctor's agenda for a day, excluding CANCELLED appointments. A nonexistent doctor returns HTTP 404.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/{{doctorId}}/agenda?date=2026-10-26",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "{{doctorId}}",
-            "agenda"
-          ],
-          "query": [
-            {
-              "key": "date",
-              "value": "2026-10-26"
-            }
-          ]
-        },
-        "description": "Without CANCELLED; 404 doctor"
-      }
+        "url": "{{baseUrl}}/api/doctors/{{doctorId}}/agenda?date={{appointmentDate}}"
+      },
+      "response": []
     },
     {
       "name": "D2",
+      "description": "Upcoming appointments for a patient: today or later, SCHEDULED or CONFIRMED, soonest first. An unknown SS number returns HTTP 404.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/patients/{{ssNumber}}/upcoming",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "patients",
-            "{{ssNumber}}",
-            "upcoming"
-          ]
-        },
-        "description": "SCHEDULED/CONFIRMED, today or later, soonest first; 404 patient"
-      }
+        "url": "{{baseUrl}}/api/patients/{{patientSsNumber}}/upcoming"
+      },
+      "response": []
     },
     {
       "name": "D3",
+      "description": "Search doctors by a case-insensitive substring in first or last name, ordered by last name.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/search?name=gis",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "search"
-          ],
-          "query": [
-            {
-              "key": "name",
-              "value": "gis"
-            }
-          ]
-        },
-        "description": "First or last name, case-insensitive"
-      }
+        "url": "{{baseUrl}}/api/doctors/search?name=gis"
+      },
+      "response": []
     },
     {
       "name": "D4",
+      "description": "Clinic summary counts returned as one JSON object.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/dashboard/summary",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "dashboard",
-            "summary"
-          ]
-        },
-        "description": "Map<String,Long> via LinkedHashMap"
-      }
+        "url": "{{baseUrl}}/api/dashboard/summary"
+      },
+      "response": []
     },
     {
-      "name": "Bonus1-top-medicines",
+      "name": "Bonus - Most prescribed medicines",
+      "description": "One row per medicine, with prescription count, most prescribed first.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/prescriptions/stats/top-medicines",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "prescriptions",
-            "stats",
-            "top-medicines"
-          ]
-        },
-        "description": ""
-      }
+        "url": "{{baseUrl}}/api/prescriptions/stats/top-medicines"
+      },
+      "response": []
     },
     {
-      "name": "Bonus2-workload",
+      "name": "Bonus - Doctor workload",
+      "description": "Completed appointment counts per doctor during the inclusive date range, busiest first; doctors with zero are omitted.",
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/doctors/workload?start=2026-10-01&end=2026-10-31",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "doctors",
-            "workload"
-          ],
-          "query": [
-            {
-              "key": "start",
-              "value": "2026-10-01"
-            },
-            {
-              "key": "end",
-              "value": "2026-10-31"
-            }
-          ]
-        },
-        "description": ""
-      }
+        "url": "{{baseUrl}}/api/doctors/workload?start={{startDate}}&end={{endDate}}"
+      },
+      "response": []
     }
   ]
 }

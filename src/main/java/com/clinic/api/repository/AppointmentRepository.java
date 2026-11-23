@@ -11,53 +11,40 @@ import org.springframework.stereotype.Repository;
 
 import com.clinic.api.model.Appointment;
 import com.clinic.api.model.AppointmentStatus;
+import com.clinic.api.model.Doctor;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByStatusOrderByAppointmentDateAsc(AppointmentStatus status);
 
-    List<Appointment> findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
-            String ssNumber, LocalDate appointmentDate, List<AppointmentStatus> statuses);
-
-    List<Appointment> findByAppointmentDateBetweenOrderByAppointmentDateAsc(
-            LocalDate start, LocalDate end);
-
-    boolean existsByDoctor_IdAndAppointmentDateAndStatusNot(
-            Long doctorId, LocalDate appointmentDate, AppointmentStatus status);
-
-    List<Appointment> findByDoctor_IdAndAppointmentDateAndStatusNot(
-            Long doctorId, LocalDate appointmentDate, AppointmentStatus status);
-
-    @Query("""
-            SELECT appointment.status, COUNT(appointment)
-            FROM Appointment appointment
-            GROUP BY appointment.status
-            """)
-    List<Object[]> countAppointmentsByStatus();
-
     long countByAppointmentDate(LocalDate appointmentDate);
 
     long countByStatus(AppointmentStatus status);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("""
-            UPDATE Appointment appointment
-            SET appointment.status = :cancelledStatus
-            WHERE appointment.doctor.id = :doctorId
-              AND appointment.appointmentDate = :date
-              AND appointment.status <> :completedStatus
-            """)
-    int cancelDay(@Param("doctorId") Long doctorId,
-            @Param("date") LocalDate date,
-            @Param("cancelledStatus") AppointmentStatus cancelledStatus,
-            @Param("completedStatus") AppointmentStatus completedStatus);
+    List<Appointment> findByDoctor_IdAndAppointmentDateAndStatusNot(
+            Long doctorId, LocalDate appointmentDate, AppointmentStatus status);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("""
-            DELETE FROM Appointment appointment
-            WHERE appointment.status = :cancelledStatus
-              AND appointment.appointmentDate < :date
-            """)
-    int deleteCancelledBefore(@Param("date") LocalDate date,
-            @Param("cancelledStatus") AppointmentStatus cancelledStatus);
+    List<Appointment> findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+            String ssNumber, LocalDate appointmentDate, List<AppointmentStatus> statuses);
+
+    List<Appointment> findByAppointmentDateBetweenOrderByAppointmentDateAsc(LocalDate start, LocalDate end);
+
+    boolean existsByDoctorAndAppointmentDateAndStatusNot(Doctor doctor, LocalDate appointmentDate,
+            AppointmentStatus status);
+
+    boolean existsByDoctorAndAppointmentDateAndStatusNotAndIdNot(Doctor doctor, LocalDate appointmentDate,
+            AppointmentStatus status, Long appointmentId);
+
+        @Query("SELECT a.status, COUNT(a) FROM Appointment a GROUP BY a.status")
+        List<Object[]> countAppointmentsByStatus();
+
+        @Modifying
+        @Query("UPDATE Appointment a SET a.status = :cancelled "
+            + "WHERE a.doctor.id = :doctorId AND a.appointmentDate = :date AND a.status <> :completed")
+        int cancelAppointmentsForDoctorOnDate(@Param("doctorId") Long doctorId, @Param("date") LocalDate date,
+            @Param("completed") AppointmentStatus completed, @Param("cancelled") AppointmentStatus cancelled);
+
+        @Modifying
+        @Query("DELETE FROM Appointment a WHERE a.status = :status AND a.appointmentDate < :date")
+        int deleteAppointmentsBeforeDate(@Param("status") AppointmentStatus status, @Param("date") LocalDate date);
 }

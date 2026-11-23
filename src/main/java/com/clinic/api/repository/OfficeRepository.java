@@ -12,26 +12,11 @@ import com.clinic.api.model.Office;
 
 @Repository
 public interface OfficeRepository extends JpaRepository<Office, Long> {
-    @Query("""
-            SELECT office.name, office.officeNumber, COUNT(appointment)
-            FROM Appointment appointment
-            JOIN appointment.doctor doctor
-            JOIN doctor.office office
-            GROUP BY office.id, office.name, office.officeNumber
-            ORDER BY COUNT(appointment) DESC, office.name ASC
-            """)
-    List<Object[]> findOfficesByAppointmentCount(Pageable pageable);
 
-    @Query("""
-            SELECT office FROM Office office
-            WHERE NOT EXISTS (
-                SELECT doctor FROM Doctor doctor
-                WHERE doctor.office = office
-            )
-            """)
-    List<Office> findFreeOffices();
+	Optional<Office> findByOfficeNumber(Integer officeNumber);
 
-    boolean existsByOfficeNumber(Integer officeNumber);
-
-    Optional<Office> findByOfficeNumber(Integer officeNumber);
+	@Query("SELECT o.name, o.officeNumber, COUNT(a) "
+			+ "FROM Appointment a JOIN a.doctor d JOIN d.office o "
+			+ "GROUP BY o.name, o.officeNumber ORDER BY COUNT(a) DESC")
+	List<Object[]> findBusiestOffice(Pageable pageable);
 }

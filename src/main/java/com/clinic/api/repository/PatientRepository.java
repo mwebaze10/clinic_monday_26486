@@ -11,22 +11,15 @@ import com.clinic.api.model.Patient;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
-    List<Patient> findByLastNameIgnoreCaseOrderByNameAsc(String lastName);
-    boolean existsBySsNumber(String ssNumber);
 
-    @Query("""
-            SELECT DISTINCT appointment.patient
-            FROM Appointment appointment
-            WHERE appointment.doctor.id = :doctorId
-            """)
-    List<Patient> findPatientsByDoctorId(@Param("doctorId") Long doctorId);
+	boolean existsBySsNumber(String ssNumber);
 
-    @Query("""
-            SELECT appointment.patient
-            FROM Appointment appointment
-            GROUP BY appointment.patient
-            HAVING COUNT(appointment) >= :minAppointments
-            ORDER BY COUNT(appointment) DESC
-            """)
-    List<Patient> findFrequentPatients(@Param("minAppointments") long minAppointments);
+	List<Patient> findByLastNameIgnoreCaseOrderByFirstNameAsc(String lastName);
+
+	@Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.doctor.id = :doctorId")
+	List<Patient> findDistinctPatientsByDoctorId(@Param("doctorId") Long doctorId);
+
+	@Query("SELECT a.patient FROM Appointment a GROUP BY a.patient "
+			+ "HAVING COUNT(a) >= :min ORDER BY COUNT(a) DESC")
+	List<Patient> findFrequentPatients(@Param("min") long min);
 }

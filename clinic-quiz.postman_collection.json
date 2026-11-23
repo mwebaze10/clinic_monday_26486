@@ -1,0 +1,169 @@
+{
+  "info": {
+    "_postman_id": "5f3b8f54-7387-46fd-9206-a6882ff2372b",
+    "name": "Kigali Clinic JPA and JPQL Quiz",
+    "description": "Requests for A1-C4 and both bonus requirements. Update collection variables to match the records in your local database. The two bulk-operation requests modify or delete database rows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "lastName", "value": "Uwase", "type": "string" },
+    { "key": "status", "value": "SCHEDULED", "type": "string" },
+    { "key": "startDate", "value": "2026-10-01", "type": "string" },
+    { "key": "endDate", "value": "2026-10-31", "type": "string" },
+    { "key": "doctorId", "value": "1", "type": "string" },
+    { "key": "patientId", "value": "1", "type": "string" },
+    { "key": "appointmentDate", "value": "2026-10-05", "type": "string" },
+    { "key": "minAppointments", "value": "3", "type": "string" },
+    { "key": "page", "value": "0", "type": "string" },
+    { "key": "pageSize", "value": "5", "type": "string" },
+    { "key": "cutoffDate", "value": "2026-10-15", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "A1 - Patients by last name",
+      "description": "Derived query: IgnoreCase matches the last name and OrderBy sorts first names ascending.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/patients/by-last-name?lastName={{lastName}}"
+      },
+      "response": []
+    },
+    {
+      "name": "A2 - Appointments by status",
+      "description": "Derived query: accepts the AppointmentStatus enum and orders appointment dates ascending.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/by-status?status={{status}}"
+      },
+      "response": []
+    },
+    {
+      "name": "A3 - Appointments between dates",
+      "description": "Derived Between query: LocalDate start and end are parsed by the controller; both bounds are inclusive and results are ordered by date.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/between?start={{startDate}}&end={{endDate}}"
+      },
+      "response": []
+    },
+    {
+      "name": "A4 - Save appointment and check double booking",
+      "description": "Derived exists check: a non-cancelled appointment for the same doctor and date returns HTTP 409. Use an existing doctor/date pair to demonstrate the conflict.",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"doctor\": { \"id\": {{doctorId}} },\n  \"patient\": { \"id\": {{patientId}} },\n  \"appointmentDate\": \"{{appointmentDate}}\",\n  \"status\": \"SCHEDULED\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/appointments/save"
+      },
+      "response": []
+    },
+    {
+      "name": "B1 - Doctors by specialization",
+      "description": "JPQL joins Doctor.specializations and compares specialization names with LOWER, so matching is case-insensitive.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/doctors/by-specialization?name=cardiology"
+      },
+      "response": []
+    },
+    {
+      "name": "B2 - Doctors without an office",
+      "description": "JPQL checks Doctor.office IS NULL and sorts doctors by last name ascending.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/doctors/without-office"
+      },
+      "response": []
+    },
+    {
+      "name": "B3 - Unused specializations",
+      "description": "JPQL checks whether the doctors collection IS EMPTY; it does not count doctors.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/specializations/unused"
+      },
+      "response": []
+    },
+    {
+      "name": "B4 - Patients of a doctor",
+      "description": "JPQL selects DISTINCT patients through Appointment.doctor. A missing doctor ID should return HTTP 404 with the specified message.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/patients/of-doctor/{{doctorId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "C1 - Appointment counts by status",
+      "description": "JPQL groups appointments by status and returns each status with its count; statuses with no appointments do not appear.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/stats/by-status"
+      },
+      "response": []
+    },
+    {
+      "name": "C2 - Frequent patients",
+      "description": "JPQL groups by Patient, filters groups with HAVING COUNT at least min, and orders highest counts first.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/patients/frequent?min={{minAppointments}}"
+      },
+      "response": []
+    },
+    {
+      "name": "C3 - Busiest office",
+      "description": "JPQL joins Appointment to Doctor to Office, groups and orders by appointment count descending, and returns only the top row. With no matches, expect No appointments yet.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/offices/busiest"
+      },
+      "response": []
+    },
+    {
+      "name": "C4 - Cancel a doctor's appointments for a date",
+      "description": "One JPQL bulk UPDATE cancels that doctor's appointments on the date except COMPLETED ones. This request changes database data.",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/cancel-day?doctorId={{doctorId}}&date={{appointmentDate}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Bonus - Appointments page",
+      "description": "Returns Page metadata including totalPages and totalElements. The controller builds Pageable from page, size, and sort.",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/page?page={{page}}&size={{pageSize}}&sort=appointmentDate,desc"
+      },
+      "response": []
+    },
+    {
+      "name": "Bonus - Delete cancelled appointments before date",
+      "description": "One JPQL bulk DELETE removes cancelled appointments before the cutoff date. This request permanently deletes database rows.",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/appointments/cancelled-before?date={{cutoffDate}}"
+      },
+      "response": []
+    }
+  ]
+}

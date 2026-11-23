@@ -1,5 +1,13 @@
 HELP.md
 target/
+frontend/node_modules/
+frontend/dist/
+/data/
+*.mv.db
+*.trace.db
+.env
+.env.*
+!.env.example
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

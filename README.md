@@ -1,76 +1,122 @@
-# Clinic API
+# Kigali Clinic API
 
-Spring Boot REST API starter for clinic records.
+A Spring Boot REST API for managing clinic patients, doctors, offices, specializations, and appointments. The project uses Spring Data JPA with PostgreSQL and includes CRUD endpoints plus derived-query and JPQL examples for searching, reporting, and bulk appointment operations.
 
-## Included
+## Stack
 
-- Java 17, Spring Web MVC, Spring Data JPA, PostgreSQL JDBC, and Lombok
-- CRUD endpoints for doctors, offices, and patients
-- Appointment creation using doctor and patient IDs
-- Patient last-name search, ignoring case and sorted by first name:
-  `GET /api/patients/by-last-name?lastName=uwase`
-- Appointments by status, sorted by appointment date:
-  `GET /api/appointments/by-status?status=SCHEDULED`
-- Appointments in an inclusive date range, sorted by appointment date:
-  `GET /api/appointments/between?start=2026-10-01&end=2026-10-31`
-- Appointments in pages with total-page and total-element metadata:
-  `GET /api/appointments/page?page=0&size=5&sort=appointmentDate,desc`
-- Appointment counts grouped by status:
-  `GET /api/appointments/stats/by-status`
-- The office with the most appointments (office name, number, and count):
-  `GET /api/offices/busiest`
-- Cancel a doctor's appointments on a date, except completed appointments:
-  `PATCH /api/appointments/cancel-day?doctorId=1&date=2026-10-20`
-- Delete cancelled appointments before a date:
-  `DELETE /api/appointments/cancelled-before?date=2026-10-15`
-- Doctors by case-insensitive specialization name:
-  `GET /api/doctors/by-specialization?name=cardiology`
-- Add or remove a doctor's specialization:
-  `PUT /api/doctors/{doctorId}/specializations/{specializationId}` and
-  `DELETE /api/doctors/{doctorId}/specializations/{specializationId}`
-- List offices not assigned to any doctor:
-  `GET /api/offices/free`
-- Assign a doctor to an unoccupied office by office number:
-  `PATCH /api/doctors/{doctorId}/office?officeNumber=104`
-- Doctors whose first or last name contains a case-insensitive search term, sorted by last name:
-  `GET /api/doctors/search?name=gis`
-- Doctor workload by completed appointments in an inclusive date range, busiest first:
-  `GET /api/doctors/workload?start=2026-10-01&end=2026-10-31`
-- Doctors without an office, sorted by last name:
-  `GET /api/doctors/without-office`
-- Specializations that no doctor offers:
-  `GET /api/specializations/unused`
-- Patients with at least one appointment with a doctor:
-  `GET /api/patients/of-doctor/1`
-- Patients with at least a minimum number of appointments, most frequent first:
-  `GET /api/patients/frequent?min=3`
-- Clinic dashboard summary with totals for patients, doctors, free offices, today's appointments, scheduled appointments, and prescriptions:
-  `GET /api/dashboard/summary`
-- Create an appointment for a doctor and patient on a date (the doctor's date must be free):
-  `POST /api/appointments/save?doctorId=1&patientId=1&appointmentDate=2026-10-20`
-  Past dates are rejected with HTTP 400 and `Appointment date cannot be in the past`. An optional JSON body may include a `status`, but new appointments always start as `SCHEDULED`.
-- Change appointment status with `PATCH /api/appointments/1/status?status=CONFIRMED`. Allowed transitions are `SCHEDULED` to `CONFIRMED` or `CANCELLED`, and `CONFIRMED` to `COMPLETED` or `CANCELLED`; other transitions return HTTP 400.
-- Reschedule an appointment with `PATCH /api/appointments/1/reschedule?newDate=2026-10-30`. Completed and cancelled appointments cannot be rescheduled; past dates return HTTP 400, and a date with another non-cancelled appointment for the doctor returns HTTP 409. Successful rescheduling resets the status to `SCHEDULED`.
-- Save a prescription for a completed appointment with `POST /api/prescriptions/save?appointmentId=1` and a JSON body containing `medicineName`, `dosage`, and `durationDays`. Prescriptions are linked to their appointment, receive a generated UUID and today's issued date, and return HTTP 201 with `Prescription saved successfully`.
-- List an appointment's prescriptions with `GET /api/prescriptions/appointment/1`. A missing appointment returns HTTP 404; an appointment with no prescriptions returns an empty list.
-- Get a patient's prescription history with `GET /api/prescriptions/patient/{ssNumber}`. Results include prescriptions across appointments, ordered by issue date newest first; no matches return an empty list.
-- Get prescription totals by medicine with `GET /api/prescriptions/stats/top-medicines`; results are ordered from most prescribed to least prescribed.
-- Update a prescription with `PUT /api/prescriptions/update/{id}` and a JSON body containing `medicineName`, `dosage`, and `durationDays`, or delete it with `DELETE /api/prescriptions/delete/{id}`. Both return HTTP 404 when the prescription is missing. Appointments with prescriptions cannot be deleted.
-- Get a doctor's agenda for a day with `GET /api/doctors/{doctorId}/agenda?date=2026-10-20`; cancelled appointments are excluded and an unknown doctor returns HTTP 404.
-- Get a patient's upcoming appointments with `GET /api/patients/{ssNumber}/upcoming`; appointments from today onward in `SCHEDULED` or `CONFIRMED` status are returned soonest first, or HTTP 404 for an unknown patient.
+- Java 17
+- Spring Boot 4 and Spring Web MVC
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- Maven Wrapper
+- Lombok
 
-## Build
+## Domain model
+
+- A doctor may have an office and may hold multiple specializations.
+- An appointment belongs to one doctor and one patient, has a `LocalDate`, and has one of four statuses: `SCHEDULED`, `CONFIRMED`, `COMPLETED`, or `CANCELLED`.
+- Patients and doctors store first and last names.
+
+## API
+
+The API base URL is `http://localhost:8080`. Standard CRUD routes are available for each resource:
+
+| Resource | Collection path |
+|---|---|
+| Patients | `/api/patients` |
+| Doctors | `/api/doctors` |
+| Offices | `/api/offices` |
+| Specializations | `/api/specializations` |
+| Appointments | `/api/appointments` |
+
+For each collection, `GET` lists records, `POST` creates one, `GET /{id}` reads one, `PUT /{id}` updates one, and `DELETE /{id}` deletes one. Appointment creation also accepts `POST /api/appointments/save`.
+
+### Query and reporting endpoints
+
+| Requirement | Method and path | Purpose |
+|---|---|---|
+| A1 | `GET /api/patients/by-last-name?lastName=Uwase` | Case-insensitive last-name lookup, ordered by first name |
+| A2 | `GET /api/appointments/by-status?status=SCHEDULED` | Appointments by enum status, ordered by date |
+| A3 | `GET /api/appointments/between?start=2026-10-01&end=2026-10-31` | Appointments between inclusive dates |
+| A4 | `PATCH /api/doctors/{doctorId}/office?officeNumber=2` | Move a doctor to an office if it is not occupied |
+| B1 | `POST /api/appointments/save` | Rejects past appointment dates and double-booking; new appointments start as `SCHEDULED` |
+| B2 | `PATCH /api/appointments/{id}/status?status=CONFIRMED` | Enforces the allowed appointment status transitions |
+| B3 | `PATCH /api/appointments/{id}/reschedule?newDate=2026-10-30` | Reschedules non-final appointments and checks date conflicts |
+| C1 | `POST /api/prescriptions/save?appointmentId=1` | Creates a prescription only for a completed appointment |
+| C2 | `GET /api/prescriptions/appointment/{appointmentId}` | Lists prescriptions for an appointment |
+| C3 | `GET /api/prescriptions/patient/{ssNumber}` | Lists patient prescription history, newest first |
+| C4 | `PUT /api/prescriptions/update/{id}`, `DELETE /api/prescriptions/delete/{id}`, `DELETE /api/appointments/{id}` | Updates/deletes prescriptions and prevents deleting appointments that still have prescriptions |
+| D1 | `GET /api/doctors/{doctorId}/agenda?date=2026-10-20` | Lists a doctor's appointments for a day, excluding cancelled ones |
+| D2 | `GET /api/patients/{ssNumber}/upcoming` | Lists today's and future scheduled/confirmed patient appointments |
+| D3 | `GET /api/doctors/search?name=gis` | Case-insensitive first/last-name search, sorted by last name |
+| D4 | `GET /api/dashboard/summary` | Returns clinic patient, doctor, office, appointment, and prescription counts |
+| Bonus | `GET /api/prescriptions/stats/top-medicines` | Prescription counts by medicine, most prescribed first |
+| Bonus | `GET /api/doctors/workload?start=2026-10-01&end=2026-10-31` | Completed appointment counts by doctor, busiest first |
+
+Date parameters use ISO format (`YYYY-MM-DD`). Appointment statuses must match the enum values. The bulk cancellation and delete endpoints modify stored data.
+
+## Database configuration
+
+The API runs without a database server by default, using an H2 database stored under `data/clinicdb`. On first startup, three sample offices are added for the office directory. The H2 file is local development data and is retained between restarts.
+
+To use PostgreSQL instead, start PostgreSQL, create the `hospital_db` database, and configure these environment variables before starting the application:
+
+- `SPRING_DATASOURCE_URL` (for example `jdbc:postgresql://localhost:5432/hospital_db`)
+- `SPRING_DATASOURCE_USERNAME` (for example `postgres`)
+- `SPRING_DATASOURCE_PASSWORD` (your PostgreSQL password; never commit this value)
+
+In PowerShell, set the URL and username, then enter the password at a masked prompt in the same terminal used to run the app:
+
+```powershell
+$env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:5432/hospital_db"
+$env:SPRING_DATASOURCE_USERNAME = "postgres"
+$secure = Read-Host "PostgreSQL password" -AsSecureString
+$env:SPRING_DATASOURCE_PASSWORD = [System.Net.NetworkCredential]::new("", $secure).Password
+Remove-Variable secure
+```
+
+Hibernate uses `ddl-auto=update` for local schema updates.
+
+## Build, test, and run
+
+Build without running tests:
 
 ```powershell
 .\mvnw.cmd -DskipTests package
 ```
 
-The application and context test require a PostgreSQL datasource. Set
-`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
-`SPRING_DATASOURCE_PASSWORD` before running them.
+Run tests (the default embedded H2 database is used unless PostgreSQL environment variables are set):
 
-## Run
+```powershell
+.\mvnw.cmd test
+```
+
+Start the API from the project root, in the same terminal where the datasource variables are set:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
+
+## Postman
+
+Import [`clinic-quiz2.postman_collection.json`](clinic-quiz2.postman_collection.json) into Postman. Update its collection variables, especially IDs, patient SS number, and dates, to match your local database. Requests are named by requirement ID; C4 groups its update, delete, and appointment-protection requests.
+
+For a live demo, choose a valid ID/date for a successful request, then use a nonexistent ID or an invalid status/date to show an error response. The service methods enforce the business rules and response messages; Spring Data repository methods and JPQL queries perform the lookups and reports.
+
+## Office management frontend
+
+The Spring Boot API remains at the repository root, and the React frontend is a separate Vite project in `frontend/`. Run the API and frontend in separate terminals. In terminal 1, from the repository root, start the API (no database setup is needed with the default H2 configuration):
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+In terminal 2, start the frontend:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open the Vite URL (usually `http://localhost:5173`). The page loads offices from `http://localhost:8080/api/offices`, filters by office name or number, and supports deleting offices after confirmation. The Update action is intentionally disabled because updates are outside this UI's scope.
